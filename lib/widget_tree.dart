@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zhanghuan/models/semester_config.dart';
+import 'package:zhanghuan/pages/about/about.dart';
 import 'package:zhanghuan/pages/comment/comment.dart';
 import 'package:zhanghuan/pages/empty_room/empty_room.dart';
 import 'package:zhanghuan/pages/exam/exam.dart';
+import 'package:zhanghuan/pages/help/help.dart';
 import 'package:zhanghuan/pages/login/login.dart';
 import 'package:zhanghuan/pages/score/score.dart';
 import 'package:zhanghuan/pages/select/select.dart';
@@ -176,6 +178,10 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
         );
       case 7:
         return const Setting();
+      case 8:
+        return const Help();
+      case 9:
+        return const About();
       default:
         return Center(child: Text(_currentTitle));
     }
