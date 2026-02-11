@@ -26,7 +26,7 @@ class _AboutState extends State<About> {
   Future<void> _checkUpdate() async {
     const String currentVersion = "v1.0.0";
     const String apiUrl =
-        "https://api.github.com/repos/wzk0/zhic_tool/releases/latest";
+        "https://api.github.com/repos/wzk0/zhanghuan/releases/latest";
     Fluttertoast.showToast(msg: "正在检查更新...");
 
     try {
@@ -155,7 +155,7 @@ class _AboutState extends State<About> {
           trailing: const Icon(Icons.arrow_forward_ios, size: 14),
           onTap: () {
             URLLauncher.launchUrl(
-              Uri(scheme: 'https', host: 'github.com', path: '/wzk0/zhic_tool'),
+              Uri(scheme: 'https', host: 'github.com', path: '/wzk0/zhanghuan'),
             );
           },
         ),

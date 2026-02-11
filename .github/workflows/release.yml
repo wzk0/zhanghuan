@@ -1,0 +1,56 @@
+name: Build & Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release --split-per-abi
+
+      - name: Prepare artifacts
+        run: |
+          mkdir -p build/outputs/release-artifacts
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/outputs/release-artifacts/ZhangHuan_arm-v7a.apk
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/outputs/release-artifacts/ZhangHuan_arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk build/outputs/release-artifacts/ZhangHuan_x86_64.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/outputs/release-artifacts/*.apk
+          body: |
+            ## 掌环 (ZhangHuan) 新版本发布 🚀
+            
+            **版本：** ${{ github.ref_name }}
+            **构建时间：** ${{ github.event.head_commit.timestamp }}
+            
+            ### 更新说明
+            - 自动编译各架构 APK (arm64, v7a, x86_64)
+            - 修复了一些已知问题
+            
+            *此发布由 GitHub Actions 自动构建生成。*
+          token: ${{ secrets.GITHUB_TOKEN }}

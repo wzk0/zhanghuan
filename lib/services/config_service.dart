@@ -6,7 +6,7 @@ import '../models/semester_config.dart';
 
 class ConfigService {
   static const String _remoteUrl =
-      'https://raw.githubusercontent.com/wzk0/zhic_tool/main/config.json';
+      'https://raw.githubusercontent.com/wzk0/zhanghuan/main/config.json';
   static const String _cacheKey = 'semester_configs_cache';
   Future<List<SemesterConfig>> fetchConfigs() async {
     final prefs = await SharedPreferences.getInstance();
