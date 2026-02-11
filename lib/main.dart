@@ -16,7 +16,10 @@ class MyApp extends StatelessWidget {
     return AnimatedBuilder(
       animation: ThemeManager(),
       builder: (_, _) => MaterialApp(
-        theme: ThemeData(colorSchemeSeed: ThemeManager().current),
+        theme: ThemeData(
+          colorSchemeSeed: ThemeManager().current,
+          fontFamily: 'MiSans',
+        ),
         darkTheme: ThemeData(
           colorSchemeSeed: ThemeManager().current,
           brightness: Brightness.dark,

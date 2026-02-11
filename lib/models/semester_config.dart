@@ -1,7 +1,7 @@
 class SemesterConfig {
-  final String name; // 学期名
-  final String id; // 教务系统 ID
-  final String startDate; // 开学日期
+  final String name;
+  final String id;
+  final String startDate;
 
   SemesterConfig({
     required this.name,
