@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+// ignore: library_prefixes
+import 'package:url_launcher/url_launcher.dart' as URLLauncher;
 
 class Help extends StatefulWidget {
   const Help({super.key});
@@ -140,7 +142,15 @@ class _HelpState extends State<Help> {
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              URLLauncher.launchUrl(
+                Uri(
+                  scheme: 'https',
+                  host: 'github.com',
+                  path: '/wzk0/zhanghuan/issues',
+                ),
+              );
+            },
             icon: const Icon(Icons.email_outlined),
             label: const Text('GitHub'),
           ),

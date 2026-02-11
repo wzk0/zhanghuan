@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:convert';
 import 'dart:math';
 // ignore: library_prefixes
@@ -14,6 +15,8 @@ class About extends StatefulWidget {
 }
 
 class _AboutState extends State<About> {
+  String _currentVersion = "v0.0.0";
+  bool _isChecking = false;
   final List<String> _funQuotes = [
     "别点了！",
     "你已经点了 ${Random().nextInt(100)} 次了，不累吗？",
@@ -21,18 +24,41 @@ class _AboutState extends State<About> {
     "生活明朗，万物可爱，除了教务系统。",
     "今天又是努力的一天呢！",
     "正在加载中环好运气... 100%！",
+    '这只猫其实是中环校猫。',
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    try {
+      final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _currentVersion = "v${packageInfo.version}";
+        });
+      }
+    } catch (e) {
+      debugPrint("获取版本号失败: $e");
+    }
+  }
+
   Future<void> _checkUpdate() async {
-    const String currentVersion = "v1.0.0";
+    if (_isChecking) return;
+    setState(() {
+      _isChecking = true;
+    });
+    final String currentVersion = _currentVersion;
     const String apiUrl =
         "https://api.github.com/repos/wzk0/zhanghuan/releases/latest";
-    Fluttertoast.showToast(msg: "正在检查更新...");
-
     try {
       final response = await http
           .get(Uri.parse(apiUrl))
           .timeout(const Duration(seconds: 5));
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final String latestVersion = data['tag_name'];
@@ -48,6 +74,12 @@ class _AboutState extends State<About> {
       }
     } catch (e) {
       Fluttertoast.showToast(msg: "无法连接到服务器，请检查网络");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isChecking = false;
+        });
+      }
     }
   }
 
@@ -112,7 +144,7 @@ class _AboutState extends State<About> {
         ),
         Center(
           child: Text(
-            'Version 1.0.0',
+            '当前版本: $_currentVersion',
             style: TextStyle(
               fontSize: 12,
               color: Theme.of(context).colorScheme.outline,
@@ -120,18 +152,16 @@ class _AboutState extends State<About> {
           ),
         ),
         const SizedBox(height: 22),
-
         _buildInfoCard(
           context,
           title: '关于掌环',
           content:
               '掌环旨在为天津理工大学中环信息学院的同学们提供更便捷的校园生活体验. 本应用代码全部开源, 不包含任何恶意采集数据的行为. 所有数据来源均来自学校官网公开API.',
         ),
-
         const Padding(
           padding: EdgeInsets.only(left: 20, bottom: 8, top: 18),
           child: Text(
-            '技术支撑',
+            '技术栈',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
         ),
@@ -148,25 +178,51 @@ class _AboutState extends State<About> {
             ],
           ),
         ),
-        const SizedBox(height: 12),
-        ListTile(
-          leading: const Icon(Icons.code),
-          title: const Text('项目源代码', style: TextStyle(fontSize: 14)),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-          onTap: () {
-            URLLauncher.launchUrl(
-              Uri(scheme: 'https', host: 'github.com', path: '/wzk0/zhanghuan'),
-            );
-          },
+        const SizedBox(height: 10),
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          clipBehavior: Clip.hardEdge,
+          child: ListTile(
+            leading: const Icon(Icons.code),
+            title: const Text('项目源代码', style: TextStyle(fontSize: 14)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+            onTap: () {
+              URLLauncher.launchUrl(
+                Uri(
+                  scheme: 'https',
+                  host: 'github.com',
+                  path: '/wzk0/zhanghuan',
+                ),
+              );
+            },
+          ),
         ),
-        const Divider(indent: 16, endIndent: 16, height: 10),
-        ListTile(
-          leading: const Icon(Icons.update),
-          title: const Text('检查更新', style: TextStyle(fontSize: 14)),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-          onTap: _checkUpdate,
+        Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          clipBehavior: Clip.hardEdge,
+          child: ListTile(
+            leading: const Icon(Icons.update),
+            title: const Text('检查更新', style: TextStyle(fontSize: 14)),
+            trailing: _isChecking
+                ? SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )
+                : const Icon(Icons.arrow_forward_ios, size: 14),
+            onTap: _isChecking ? null : _checkUpdate,
+          ),
         ),
-        const SizedBox(height: 26),
+        const SizedBox(height: 22),
         Center(
           child: Text(
             '© 2025-2026 wzk0 & thdbd.\nAll Rights Reserved.',
@@ -178,7 +234,6 @@ class _AboutState extends State<About> {
             ),
           ),
         ),
-        const SizedBox(height: 20),
       ],
     );
   }
