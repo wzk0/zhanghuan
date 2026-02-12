@@ -112,7 +112,7 @@ class _AboutState extends State<About> {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 10),
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 5),
       children: [
         Center(
           child: GestureDetector(

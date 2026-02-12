@@ -183,6 +183,7 @@ class _ExamState extends State<Exam> {
                 child: Text("本学期暂无考试安排"),
               ),
             ),
+          SafeArea(child: SizedBox()),
         ],
       ),
     );
@@ -229,22 +230,32 @@ class _ExamState extends State<Exam> {
       child: Opacity(
         opacity: isFinished ? 0.7 : 1.0,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.only(
+            top: 12,
+            bottom: 12,
+            left: 16,
+            right: 16,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  _buildTag(
-                    exam['type'],
-                    isFinished ? colorScheme.secondary : colorScheme.primary,
-                  ),
+                  _buildTag(exam['type']),
+                  const SizedBox(width: 2),
                   Expanded(
                     child: SingleChildScrollView(
                       scrollDirection: .horizontal,
                       child: Text(
                         exam['courseName'],
-                        style: const TextStyle(fontSize: 16, fontWeight: .bold),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: .bold,
+                          color: Theme.of(context).colorScheme.outline,
+                          decoration: isFinished
+                              ? TextDecoration.lineThrough
+                              : TextDecoration.none,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -281,16 +292,17 @@ class _ExamState extends State<Exam> {
     );
   }
 
-  Widget _buildTag(String text, Color color) {
+  Widget _buildTag(String text) {
     return Card(
       elevation: 0,
+      color: Theme.of(context).colorScheme.primaryContainer,
       child: Padding(
-        padding: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.only(right: 6, left: 6, top: 1, bottom: 1),
         child: Text(
           text,
           style: TextStyle(
             fontSize: 11,
-            color: color,
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -301,7 +313,6 @@ class _ExamState extends State<Exam> {
   Widget _infoRow(IconData icon, String value) {
     return Row(
       children: [
-        const SizedBox(width: 8),
         Icon(icon, size: 14, color: Theme.of(context).colorScheme.outline),
         const SizedBox(width: 8),
         Expanded(

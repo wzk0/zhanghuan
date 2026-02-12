@@ -136,6 +136,7 @@ class _ScoreState extends State<Score> {
                         ),
                 ),
         ),
+        SafeArea(child: SizedBox()),
       ],
     );
   }

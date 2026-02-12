@@ -167,6 +167,7 @@ class _EmptyRoomState extends State<EmptyRoom> {
                         ),
                 ),
         ),
+        SafeArea(child: SizedBox()),
       ],
     );
   }
