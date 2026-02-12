@@ -30,15 +30,24 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
       - name: Build APK
         run: flutter build apk --release --split-per-abi
+        env:
+          APP_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          APP_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          APP_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Prepare artifacts
         run: |
           mkdir -p build/outputs/release-artifacts
-          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/outputs/release-artifacts/ZhangHuan_arm-v7a.apk
-          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/outputs/release-artifacts/ZhangHuan_arm64-v8a.apk
-          cp build/app/outputs/flutter-apk/app-x86_64-release.apk build/outputs/release-artifacts/ZhangHuan_x86_64.apk
+          TAG_NAME=${{ github.ref_name }}
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk build/outputs/release-artifacts/${TAG_NAME}_armeabi-v7a.apk
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk build/outputs/release-artifacts/${TAG_NAME}_arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk build/outputs/release-artifacts/${TAG_NAME}_x86_64.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -46,15 +55,13 @@ jobs:
           files: |
             build/outputs/release-artifacts/*.apk
           body: |
-            ## 掌环 (ZhangHuan) 新版本发布 🚀
+            ## 掌环 ${{ github.ref_name }} 版本发布 🚀
             
-            **版本：** ${{ github.ref_name }}
             **构建时间：** ${{ github.event.head_commit.timestamp }}
             
             ### 更新说明
             - 自动编译各架构 APK (arm64, v7a, x86_64)
-            - 修复了一些已知问题
-            - 正常情况下请选择 arm64-v8a 架构
+            - 正常情况下请优先选择 **arm64-v8a** 架构下载
             
             *此发布由 GitHub CI 自动构建生成。*
           token: ${{ secrets.GITHUB_TOKEN }}
