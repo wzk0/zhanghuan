@@ -54,7 +54,7 @@ jobs:
             ### 更新说明
             - 自动编译各架构 APK (arm64, v7a, x86_64)
             - 修复了一些已知问题
-            - 正常情况下请选择 arm64-v8a 架构-
+            - 正常情况下请选择 arm64-v8a 架构
             
             *此发布由 GitHub CI 自动构建生成。*
           token: ${{ secrets.GITHUB_TOKEN }}
