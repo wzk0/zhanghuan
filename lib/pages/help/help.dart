@@ -134,7 +134,7 @@ class _HelpState extends State<Help> {
           const SizedBox(height: 8),
           Text(
             textAlign: .center,
-            '如遇BUG或有功能建议, 请提Issue/PR或联系开发者',
+            '如遇BUG或有功能建议, 请提Issue/PR',
             style: TextStyle(
               fontSize: 12,
               color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -151,7 +151,7 @@ class _HelpState extends State<Help> {
                 ),
               );
             },
-            icon: const Icon(Icons.email_outlined),
+            icon: const Icon(Icons.construction),
             label: const Text('GitHub'),
           ),
         ],

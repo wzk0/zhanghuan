@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
         darkTheme: ThemeData(
           colorSchemeSeed: ThemeManager().current,
           brightness: Brightness.dark,
+          fontFamily: 'MiSans',
         ),
         home: const WidgetTree(),
       ),
