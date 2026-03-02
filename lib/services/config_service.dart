@@ -25,6 +25,7 @@ class ConfigService {
     final String? cachedData = prefs.getString(_cacheKey);
     if (cachedData != null) {
       return [
+        SemesterConfig(name: "2025-2026-2", id: "83", startDate: "2026-03-09"),
         SemesterConfig(name: "2025-2026-1", id: "82", startDate: "2025-09-08"),
         SemesterConfig(name: "2024-2025-2", id: "81", startDate: "2025-03-03"),
         SemesterConfig(name: "2024-2025-1", id: "61", startDate: "2024-09-02"),
@@ -33,6 +34,7 @@ class ConfigService {
       ];
     }
     return [
+      SemesterConfig(name: "2025-2026-2", id: "83", startDate: "2026-03-09"),
       SemesterConfig(name: "2025-2026-1", id: "82", startDate: "2025-09-08"),
       SemesterConfig(name: "2024-2025-2", id: "81", startDate: "2025-03-03"),
       SemesterConfig(name: "2024-2025-1", id: "61", startDate: "2024-09-02"),
