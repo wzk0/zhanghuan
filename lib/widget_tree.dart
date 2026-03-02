@@ -88,28 +88,46 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> _loadScheduleData() async {
+  Future<void> _loadScheduleData({bool forceRefresh = false}) async {
     if (!_isLoggedIn || _currentSelected == null) return;
-    setState(() => _isSyncing = true);
-    String scheduleUrl =
-        "https://eams.tjzhic.edu.cn/student/for-std/course-table/semester/${_currentSelected!.id}/print-data?semesterId=${_currentSelected!.id}&hasExperiment=true";
-    final data = await NetworkService().request(
-      scheduleUrl,
-      queryParameters: {},
-    );
-    if (data != null && mounted) {
-      setState(() {
-        _rawScheduleData = data['studentTableVms'][0]['activities'] ?? [];
-        var student = data['studentTableVms'][0];
-        _studentInfo = {
-          "name": student['name'] ?? "未知",
-          "code": student['code'] ?? "未知",
-          "info":
-              "${student['department'] ?? ''} ${student['adminclass'] ?? ''}",
-        };
-      });
+    if (_rawScheduleData.isEmpty || forceRefresh) {
+      setState(() => _isSyncing = true);
     }
-    if (mounted) setState(() => _isSyncing = false);
+    String scheduleUrl =
+        "https://eams.tjzhic.edu.cn/student/for-std/course-table/semester/${_currentSelected!.id}/print-data";
+    Map<String, dynamic> params = {
+      "semesterId": _currentSelected!.id.toString(),
+      "hasExperiment": "true",
+    };
+    try {
+      final data = await NetworkService().request(
+        scheduleUrl,
+        queryParameters: params,
+      );
+      if (data != null && mounted) {
+        var vms = data['studentTableVms'];
+        if (vms != null && vms.isNotEmpty) {
+          var student = vms[0];
+          setState(() {
+            _rawScheduleData = student['activities'] ?? [];
+            _studentInfo = {
+              "name": student['name'] ?? "未知",
+              "code": student['code'] ?? "未知",
+              "info":
+                  "${student['department'] ?? ''} ${student['adminclass'] ?? ''}",
+            };
+          });
+        }
+      } else {
+        if (_rawScheduleData.isEmpty) {
+          Fluttertoast.showToast(msg: "无法获取数据，请检查网络连接");
+        }
+      }
+    } catch (e) {
+      debugPrint("加载异常: $e");
+    } finally {
+      if (mounted) setState(() => _isSyncing = false);
+    }
   }
 
   Future<void> _handleAuthOrRefresh() async {
@@ -230,13 +248,13 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
               Text(
                 _dynamicTitle,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               if (_currentSelected != null)
                 Text(
-                  _currentSelected!.name,
+                  '📅 ${getDate()} 📑 ${_currentSelected!.name}',
                   style: const TextStyle(fontSize: 10),
                 ),
             ],
@@ -479,12 +497,25 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
 
   String get _dynamicTitle {
     if (_selectedIndex != 0) return _currentTitle;
-    int viewWeek = _tabController.index + 1;
-    if (_currentSelected != null) {
-      int realWeek = DateUtil.getCurrentWeek(_currentSelected!.startDate);
-      if (realWeek < 1 || realWeek > 20) return "假期中🥤";
-      return '第 $viewWeek 周${(viewWeek == realWeek) ? ' (本周)' : ''}';
+    if (_currentSelected == null) return '掌环';
+    int realWeek = DateUtil.getCurrentWeek(_currentSelected!.startDate);
+    if (realWeek < 1) {
+      int daysLeft = DateUtil.getDaysUntilStart(_currentSelected!.startDate);
+      if (daysLeft > 0) {
+        return "假期中│$daysLeft 天后上课 🏖️";
+      } else {
+        return "即将开学 🚀";
+      }
     }
-    return '掌环';
+    if (realWeek > 20) return "学期已结束 🎓";
+    int viewWeek = _tabController.index + 1;
+    return '第 $viewWeek 周${(viewWeek == realWeek) ? ' (本周)' : ''}';
+  }
+
+  String getDate() {
+    final weekDays = ["", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+    final now = DateTime.now();
+    String dateString = "${now.month}月${now.day}日 ${weekDays[now.weekday]}";
+    return dateString;
   }
 }

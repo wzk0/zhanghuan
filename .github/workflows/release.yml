@@ -59,8 +59,8 @@ jobs:
             
             **构建时间：** ${{ github.event.head_commit.timestamp }}
             
-            ### 更新说明
-            - 自动编译各架构 APK (arm64, v7a, x86_64)
+            ### 说明
+            - 由 `GitHub CI` 自动编译各架构 APK (arm64, v7a, x86_64)
             - 正常情况下请优先选择 **arm64-v8a** 架构下载
             
             *此发布由 GitHub CI 自动构建生成。*
