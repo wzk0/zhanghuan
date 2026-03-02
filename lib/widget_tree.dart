@@ -164,17 +164,17 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
         return EmptyRoom(
           week: _tabController.index + 1,
           semesterId:
-              int.tryParse(_currentSelected?.id.toString() ?? '82') ?? 82,
+              int.tryParse(_currentSelected?.id.toString() ?? '83') ?? 83,
         );
       case 2:
         return Score(
           semesterId:
-              int.tryParse(_currentSelected?.id.toString() ?? '82') ?? 82,
+              int.tryParse(_currentSelected?.id.toString() ?? '83') ?? 83,
         );
       case 3:
         return Exam(
           semesterId:
-              int.tryParse(_currentSelected?.id.toString() ?? '82') ?? 82,
+              int.tryParse(_currentSelected?.id.toString() ?? '83') ?? 83,
         );
       case 7:
         return const Setting();
