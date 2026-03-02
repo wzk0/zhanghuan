@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -100,10 +102,10 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
       "hasExperiment": "true",
     };
     try {
-      final data = await NetworkService().request(
-        scheduleUrl,
-        queryParameters: params,
-      );
+      final data = await NetworkService()
+          .request(scheduleUrl, queryParameters: params)
+          .timeout(const Duration(seconds: 5));
+
       if (data != null && mounted) {
         var vms = data['studentTableVms'];
         if (vms != null && vms.isNotEmpty) {
@@ -118,13 +120,13 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
             };
           });
         }
-      } else {
-        if (_rawScheduleData.isEmpty) {
-          Fluttertoast.showToast(msg: "无法获取数据，请检查网络连接");
-        }
       }
+    } on TimeoutException catch (_) {
+      Fluttertoast.showToast(msg: "网络连接超时，已加载缓存数据");
     } catch (e) {
-      debugPrint("加载异常: $e");
+      if (_rawScheduleData.isEmpty) {
+        Fluttertoast.showToast(msg: "获取数据失败");
+      }
     } finally {
       if (mounted) setState(() => _isSyncing = false);
     }

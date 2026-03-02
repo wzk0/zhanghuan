@@ -28,11 +28,9 @@ class _SettingState extends State<Setting> {
   };
   String _selected = 'blue';
 
-  // 设置项变量
   bool _showSunday = false;
   bool _directToDesktop = false;
 
-  // Tooltip 设置项 (可以用 Map 存储)
   final Map<String, bool> _tooltipSettings = {
     '授课老师': true,
     '上课时间': true,
@@ -50,21 +48,17 @@ class _SettingState extends State<Setting> {
     _loadAllSettings();
   }
 
-  // 加载所有持久化设置
   Future<void> _loadAllSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _showSunday = prefs.getBool('show_sunday') ?? false;
       _directToDesktop = prefs.getBool('direct_to_desktop') ?? false;
-
-      // 加载 Tooltip 复选框状态
       for (var key in _tooltipSettings.keys) {
         _tooltipSettings[key] = prefs.getBool('tooltip_$key') ?? true;
       }
     });
   }
 
-  // 保存布尔值设置
   Future<void> _saveBoolSetting(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
@@ -75,7 +69,6 @@ class _SettingState extends State<Setting> {
     return ListView(
       padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16, top: 12),
       children: [
-        // 主题设置部分
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
@@ -131,8 +124,6 @@ class _SettingState extends State<Setting> {
           ),
         ),
         const SizedBox(height: 10),
-
-        // 课表显示周日设置
         _buildSwitchTile(
           title: '是否在课表中显示周日',
           subtitle: '开启后课表将显示周日(可能会有课程调休至周日)',
@@ -143,8 +134,6 @@ class _SettingState extends State<Setting> {
           },
         ),
         const SizedBox(height: 10),
-
-        // 直接返回桌面设置
         _buildSwitchTile(
           title: '是否直接返回至桌面',
           subtitle: '不开启则侧滑返回会先回到首页',
@@ -155,8 +144,6 @@ class _SettingState extends State<Setting> {
           },
         ),
         const SizedBox(height: 10),
-
-        // Tooltip 设置
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
@@ -184,7 +171,6 @@ class _SettingState extends State<Setting> {
                   return _tooltipSettings.keys.map((String key) {
                     return PopupMenuItem(
                       child: StatefulBuilder(
-                        // 保证弹窗内点击能实时更新UI
                         builder: (context, setPopupState) {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -218,7 +204,6 @@ class _SettingState extends State<Setting> {
     );
   }
 
-  // 抽取的 Switch 列表组件
   Widget _buildSwitchTile({
     required String title,
     required String subtitle,
@@ -252,7 +237,7 @@ class _SettingState extends State<Setting> {
     final isSelected = _selected == name;
     return GestureDetector(
       onTap: () async {
-        await ThemeManager().setColorByName(name); // 修正为 ThemeManager 调用
+        await ThemeManager().setColorByName(name);
         setState(() => _selected = name);
       },
       child: Container(
