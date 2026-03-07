@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   flutter_inappwebview: ^6.1.5
   flutter_launcher_icons: ^0.14.4
+  flutter_material_design_icons: ^1.1.7447
   fluttertoast: ^9.0.0
   html: ^0.15.6
   http: ^1.6.0
@@ -33,6 +34,7 @@ flutter:
   assets:
     - assets/
     - assets/images/icon.png
+    - assets/images/calendar/2025-2026-2.png
   
   fonts:
     - family: MiSans

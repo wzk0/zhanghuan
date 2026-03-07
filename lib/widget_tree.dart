@@ -1,25 +1,30 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zhanghuan/config/drawer_menu_config.dart';
+import 'package:zhanghuan/models/drawer_item.dart';
 import 'package:zhanghuan/models/semester_config.dart';
 import 'package:zhanghuan/pages/about/about.dart';
-import 'package:zhanghuan/pages/comment/comment.dart';
+import 'package:zhanghuan/pages/calendar/calendar.dart';
 import 'package:zhanghuan/pages/empty_room/empty_room.dart';
 import 'package:zhanghuan/pages/exam/exam.dart';
 import 'package:zhanghuan/pages/help/help.dart';
 import 'package:zhanghuan/pages/login/login.dart';
+import 'package:zhanghuan/pages/plan/plan.dart';
 import 'package:zhanghuan/pages/score/score.dart';
-import 'package:zhanghuan/pages/select/select.dart';
 import 'package:zhanghuan/pages/setting/setting.dart';
-import 'package:zhanghuan/pages/vocation/vocation.dart';
 import 'package:zhanghuan/services/auth_service.dart';
 import 'package:zhanghuan/services/config_service.dart';
 import 'package:zhanghuan/services/network_service.dart';
 import 'package:zhanghuan/utils/date_util.dart';
 import 'package:zhanghuan/widgets/schedule.dart';
+
+import 'pages/comment/comment.dart';
+import 'pages/library/library.dart';
+import 'pages/select/select.dart';
+import 'pages/vocation/vocation.dart';
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});
@@ -178,29 +183,35 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
         ),
       );
     }
-
+    final int currentSemesterId =
+        int.tryParse(_currentSelected?.id.toString() ?? '83') ?? 83;
     switch (_selectedIndex) {
       case 1:
         return EmptyRoom(
           week: _tabController.index + 1,
-          semesterId:
-              int.tryParse(_currentSelected?.id.toString() ?? '83') ?? 83,
+          semesterId: currentSemesterId,
         );
       case 2:
-        return Score(
-          semesterId:
-              int.tryParse(_currentSelected?.id.toString() ?? '83') ?? 83,
-        );
+        return Score(semesterId: currentSemesterId);
       case 3:
-        return Exam(
-          semesterId:
-              int.tryParse(_currentSelected?.id.toString() ?? '83') ?? 83,
-        );
+        return Exam(semesterId: currentSemesterId);
+      case 4:
+        return const Calendar();
+      case 5:
+        return const Plan();
+      case 6:
+        return const Library();
       case 7:
-        return const Setting();
+        return const Select();
       case 8:
-        return const Help();
+        return const Comment();
       case 9:
+        return const Vocation();
+      case 10:
+        return const Setting();
+      case 11:
+        return const Help();
+      case 12:
         return const About();
       default:
         return Center(child: Text(_currentTitle));
@@ -288,81 +299,38 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
 
   Widget _buildDrawer() {
     return NavigationDrawer(
-      onDestinationSelected: (value) async {
-        // 加上 async
-        Navigator.pop(context); // 关闭侧边栏
-
-        if (value == 4 || value == 5 || value == 6) {
-          // 定义跳转目标
-          Widget targetPage;
-          if (value == 4) {
-            targetPage = const Select();
-          } else if (value == 5) {
-            targetPage = const Comment();
-          } else {
-            targetPage = const Vocation();
-          }
-
-          // 执行跳转
+      selectedIndex: _selectedIndex,
+      onDestinationSelected: (index) async {
+        final itemsOnly = drawerMenuConfig
+            .whereType<DrawerDestinationModel>()
+            .toList();
+        final item = itemsOnly[index];
+        if (item.type == DrawerItemType.page && item.targetPage != null) {
+          Navigator.pop(context);
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => targetPage),
+            MaterialPageRoute(builder: (context) => item.targetPage!),
           );
-
-          // 【关键】当从以上任何一个页面返回后，强制切回首页
-          setState(() => _selectedIndex = 0);
         } else {
-          // 普通切页
-          setState(() => _selectedIndex = value);
+          setState(() => _selectedIndex = index);
+          Navigator.pop(context);
         }
       },
-      selectedIndex: _selectedIndex,
       children: [
         _buildDrawerHeader(),
-        const Divider(),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
-          label: Text('首页│课表'),
-        ),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.hdr_weak),
-          label: Text('空教室查询'),
-        ),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.saved_search),
-          label: Text('成绩查询'),
-        ),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.manage_search),
-          label: Text('考试查询'),
-        ),
-        const Divider(),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.class_outlined),
-          label: Text('选课'),
-        ),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.point_of_sale),
-          label: Text('评教'),
-        ),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.directions_car_filled_outlined),
-          label: Text('请假'),
-        ),
-        const Divider(),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.settings_outlined),
-          label: Text('设置'),
-        ),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.help_outline),
-          label: Text('帮助'),
-        ),
-        const NavigationDrawerDestination(
-          icon: Icon(Icons.info_outline),
-          label: Text('关于'),
-        ),
+        ...drawerMenuConfig.map((item) {
+          if (item is String && item == "divider") {
+            return const Divider(indent: 28, endIndent: 28);
+          }
+          final dest = item as DrawerDestinationModel;
+          return NavigationDrawerDestination(
+            icon: Icon(dest.icon),
+            selectedIcon: dest.selectedIcon != null
+                ? Icon(dest.selectedIcon)
+                : null,
+            label: Text(dest.label),
+          );
+        }),
       ],
     );
   }
@@ -487,6 +455,9 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
       '空教室查询',
       '成绩查询',
       '考试查询',
+      '校历',
+      '培养方案',
+      '图书馆',
       '选课',
       '评教',
       '请假',
