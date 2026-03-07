@@ -11,7 +11,7 @@ class Calendar extends StatelessWidget {
         children: [
           _buildCalendarCard(
             context,
-            '2025-2026-2校历',
+            '2025-2026-2 校历',
             'assets/images/calendar/2025-2026-2.png',
           ),
         ],
