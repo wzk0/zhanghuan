@@ -59,5 +59,19 @@ final List<dynamic> drawerMenuConfig = [
     targetPage: Vocation(),
   ),
   "divider",
-  const DrawerDestinationModel(icon: Icons.settings_outlined, label: '设置'),
+  const DrawerDestinationModel(
+    icon: Icons.settings_outlined,
+    selectedIcon: Icons.settings,
+    label: '设置',
+  ),
+  const DrawerDestinationModel(
+    icon: Icons.help_outline,
+    selectedIcon: Icons.help,
+    label: '帮助',
+  ),
+  const DrawerDestinationModel(
+    icon: Icons.info_outline,
+    selectedIcon: Icons.info,
+    label: '关于',
+  ),
 ];
