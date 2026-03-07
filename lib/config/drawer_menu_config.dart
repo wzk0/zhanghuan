@@ -21,8 +21,8 @@ final List<dynamic> drawerMenuConfig = [
     label: '考试查询',
   ),
   const DrawerDestinationModel(
-    icon: MdiIcons.calendarSearchOutline,
-    selectedIcon: MdiIcons.calendarSearch,
+    icon: MdiIcons.calendarTodayOutline,
+    selectedIcon: MdiIcons.calendarToday,
     label: '校历',
   ),
   "divider",
