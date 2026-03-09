@@ -95,45 +95,63 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
     }
   }
 
+  void _processData(dynamic data) {
+    if (data == null) return;
+
+    var vms = data['studentTableVms'];
+    if (vms != null && vms.isNotEmpty) {
+      var student = vms[0];
+      if (mounted) {
+        setState(() {
+          _rawScheduleData = student['activities'] ?? [];
+          _studentInfo = {
+            "name": student['name'] ?? "未知",
+            "code": student['code'] ?? "未知",
+            "info":
+                "${student['department'] ?? ''} ${student['adminclass'] ?? ''}",
+          };
+        });
+      }
+    }
+  }
+
   Future<void> _loadScheduleData({bool forceRefresh = false}) async {
     if (!_isLoggedIn || _currentSelected == null) return;
-    if (_rawScheduleData.isEmpty || forceRefresh) {
-      setState(() => _isSyncing = true);
-    }
     String scheduleUrl =
         "https://eams.tjzhic.edu.cn/student/for-std/course-table/semester/${_currentSelected!.id}/print-data";
     Map<String, dynamic> params = {
       "semesterId": _currentSelected!.id.toString(),
       "hasExperiment": "true",
     };
+    if (_rawScheduleData.isEmpty) {
+      final cache = await NetworkService().getCache(
+        scheduleUrl,
+        queryParameters: params,
+      );
+      if (cache != null) {
+        _processData(cache);
+      }
+    }
+    if (_rawScheduleData.isEmpty || forceRefresh) {
+      setState(() => _isSyncing = true);
+    }
     try {
-      final data = await NetworkService()
-          .request(scheduleUrl, queryParameters: params)
-          .timeout(const Duration(seconds: 5));
-
-      if (data != null && mounted) {
-        var vms = data['studentTableVms'];
-        if (vms != null && vms.isNotEmpty) {
-          var student = vms[0];
-          setState(() {
-            _rawScheduleData = student['activities'] ?? [];
-            _studentInfo = {
-              "name": student['name'] ?? "未知",
-              "code": student['code'] ?? "未知",
-              "info":
-                  "${student['department'] ?? ''} ${student['adminclass'] ?? ''}",
-            };
-          });
-        }
+      final data = await NetworkService().request(
+        scheduleUrl,
+        queryParameters: params,
+        timeout: const Duration(seconds: 8),
+      );
+      if (data != null) {
+        _processData(data);
+      } else if (_rawScheduleData.isEmpty) {
+        Fluttertoast.showToast(msg: "无法获取数据，请检查网络或重新登录");
       }
-    } on TimeoutException catch (_) {
-      Fluttertoast.showToast(msg: "网络连接超时，已加载缓存数据");
     } catch (e) {
-      if (_rawScheduleData.isEmpty) {
-        Fluttertoast.showToast(msg: "获取数据失败");
-      }
+      Fluttertoast.showToast(msg: "Widget层捕获到漏网异常: $e");
     } finally {
-      if (mounted) setState(() => _isSyncing = false);
+      if (mounted) {
+        setState(() => _isSyncing = false);
+      }
     }
   }
 
