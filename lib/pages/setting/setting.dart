@@ -30,6 +30,7 @@ class _SettingState extends State<Setting> {
 
   bool _showSunday = false;
   bool _directToDesktop = false;
+  double _timeout = 5.0;
 
   final Map<String, bool> _tooltipSettings = {
     '授课老师': true,
@@ -53,6 +54,7 @@ class _SettingState extends State<Setting> {
     setState(() {
       _showSunday = prefs.getBool('show_sunday') ?? false;
       _directToDesktop = prefs.getBool('direct_to_desktop') ?? false;
+      _timeout = prefs.getDouble('request_timeout') ?? 5.0;
       for (var key in _tooltipSettings.keys) {
         _tooltipSettings[key] = prefs.getBool('tooltip_$key') ?? true;
       }
@@ -62,6 +64,11 @@ class _SettingState extends State<Setting> {
   Future<void> _saveBoolSetting(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
+  }
+
+  Future<void> _saveDoubleSetting(String key, double value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(key, value);
   }
 
   @override
@@ -142,6 +149,49 @@ class _SettingState extends State<Setting> {
             setState(() => _directToDesktop = value);
             _saveBoolSetting('direct_to_desktop', value);
           },
+        ),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Theme.of(context).colorScheme.surfaceContainer,
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('超时时间'),
+                      SizedBox(height: 2),
+                      Text('网络请求的最大等待秒数', style: TextStyle(fontSize: 10)),
+                    ],
+                  ),
+                  Text(
+                    '${_timeout.toInt()}s',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+              Slider(
+                value: _timeout,
+                min: 1,
+                max: 10,
+                divisions: 9,
+                label: _timeout.toInt().toString(),
+                onChanged: (value) {
+                  setState(() => _timeout = value);
+                  _saveDoubleSetting('request_timeout', value);
+                },
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 10),
         Container(

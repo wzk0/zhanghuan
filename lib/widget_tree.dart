@@ -117,6 +117,8 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
 
   Future<void> _loadScheduleData({bool forceRefresh = false}) async {
     if (!_isLoggedIn || _currentSelected == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final userTimeoutSeconds = prefs.getDouble('request_timeout') ?? 8.0;
     String scheduleUrl =
         "https://eams.tjzhic.edu.cn/student/for-std/course-table/semester/${_currentSelected!.id}/print-data";
     Map<String, dynamic> params = {
@@ -139,7 +141,8 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
       final data = await NetworkService().request(
         scheduleUrl,
         queryParameters: params,
-        timeout: const Duration(seconds: 8),
+        // 将设置的超时时间应用到请求中
+        timeout: Duration(seconds: userTimeoutSeconds.toInt()),
       );
       if (data != null) {
         _processData(data);
@@ -500,7 +503,7 @@ class _WidgetTreeState extends State<WidgetTree> with TickerProviderStateMixin {
     }
     if (realWeek > 20) return "学期已结束 🎓";
     int viewWeek = _tabController.index + 1;
-    return '第 $viewWeek 周${(viewWeek == realWeek) ? ' (本周)' : ''}';
+    return '第 $viewWeek 周';
   }
 
   String getDate() {
