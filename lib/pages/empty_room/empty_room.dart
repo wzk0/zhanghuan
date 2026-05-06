@@ -42,7 +42,7 @@ class _EmptyRoomState extends State<EmptyRoom> {
       isPost: true,
       body: {
         "teachingWeek": widget.week,
-        "campus": 1,
+        "campus": 2,
         "buildingAssocs": [],
         "roomAssocs": [],
         "seatsForLessonLowerLimit": "",
